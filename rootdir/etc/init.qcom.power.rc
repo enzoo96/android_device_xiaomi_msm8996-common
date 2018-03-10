@@ -82,6 +82,9 @@ on enable-low-power
     # Set sync wakee policy tunable
     write /proc/sys/kernel/sched_prefer_sync_wakee_to_waker 1
 
+    # Bring CPU0 online
+    write /sys/devices/system/cpu/cpu0/online 1
+
     # Configure governor settings for little cluster
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
     write /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load 1
@@ -156,6 +159,7 @@ on enable-low-power
     write /sys/class/devfreq/soc:qcom,mincpubw/governor "cpufreq"
 
     # Enable UFS powersaving
+    write /sys/module/scsi_mod/parameters/use_blk_mq "Y"
     write /sys/devices/soc/${ro.boot.bootdevice}/clkscale_enable 1
     write /sys/devices/soc/${ro.boot.bootdevice}/clkgate_enable 1
     write /sys/devices/soc/${ro.boot.bootdevice}/${ro.boot.bootdevice}:ufs_variant/pm_qos_enable 1
@@ -163,8 +167,36 @@ on enable-low-power
     # Enable all LPMs (this will enable C4, D4, D3, E4 and M3 LPMs)
     write /sys/module/lpm_levels/parameters/sleep_disabled "N"
 
-    # Set idle GPU to 133 MHz
-    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 6
+    # Power Efficient
+    write /sys/module/workqueue/parameters/power_efficient "Y"
+
+    # KSM / UKSM
+    write /sys/kernel/mm/uksm/run_charging 1
+    write /sys/kernel/mm/uksm/max_cpu_percentage 10
+    write /sys/kernel/mm/uksm/sleep_millisecs 3000
+    
+    # I/O
+    write /sys/block/dm-0/queue/read_ahead_kb 512
+    write /sys/block/dm-1/queue/read_ahead_kb 512
+    write /sys/block/sda/queue/read_ahead_kb 512
+    write /sys/block/sde/queue/read_ahead_kb 512
+
+    write /sys/block/dm-0/queue/scheduler maple
+    write /sys/block/dm-1/queue/scheduler maple
+    write /sys/block/sda/queue/scheduler maple
+    write /sys/block/sde/queue/scheduler maple
+
+    write /sys/block/dm-0/queue/iostats 0
+    write /sys/block/dm-1/queue/iostats 0
+    write /sys/block/sda/queue/iostats 0
+    write /sys/block/sde/queue/iostats 0
+    
+    # Misc
+    write /sys/kernel/fast_charge/force_fast_charge 1
+    write /sys/module/battery_current_limit/parameters/low_battery_value 5
+    write /sys/kernel/fp_boost/enabled 1
+    write /sys/kernel/power_suspend/power_suspend_mode 3
+    write /sys/module/sync/parameters/fsync_enabled "Y"
 
     # Set perfd properties
     setprop sys.post_boot.parsed 1
@@ -173,10 +205,14 @@ on property:sys.boot_completed=1
     trigger enable-low-power
 
     # Set I/O squeduler
-    setprop sys.io.scheduler "bfq"
+    setprop sys.io.scheduler "maple"
 
     # Start I/O prefetcher service
     start iop
+    
+    # Network Settings
+    write /proc/sys/net/ipv4/tcp_congestion_control "westwood"
+    setprop net.hostname "Crystal"
 
 on property:init.svc.recovery=running
     trigger enable-low-power
