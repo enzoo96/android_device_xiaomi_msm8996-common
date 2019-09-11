@@ -195,8 +195,8 @@ BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy
 include vendor/omni/sepolicy/sepolicy.mk
 
 # Vendor init
-TARGET_INIT_VENDOR_LIB := libinit_msm8996
-TARGET_RECOVERY_DEVICE_MODULES := libinit_msm8996
+TARGET_INIT_VENDOR_LIB := libinit.xiaomi_8996
+TARGET_RECOVERY_DEVICE_MODULES := libinit.xiaomi_8996
 
 # Wifi
 BOARD_HAS_QCOM_WLAN := true

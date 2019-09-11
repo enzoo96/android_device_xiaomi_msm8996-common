@@ -30,7 +30,6 @@
  */
 
 #include <sys/sysinfo.h>
-#include <android-base/logging.h>
 
 #include <android-base/properties.h>
 
