@@ -197,7 +197,7 @@ BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy
 include vendor/omni/sepolicy/sepolicy.mk
 
 # Vendor init
-TARGET_INIT_VENDOR_LIB := libinit.xiaomi_8996
+TARGET_INIT_VENDOR_LIB := //$(VENDOR_PATH):libinit.xiaomi_8996
 TARGET_RECOVERY_DEVICE_MODULES := libinit.xiaomi_8996
 
 # Wifi
