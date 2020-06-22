@@ -1,0 +1,2 @@
+type iqfp_service,                service_manager_type;
+type qfp_proxy_service,           service_manager_type;
